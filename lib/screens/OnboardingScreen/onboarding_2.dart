@@ -1,8 +1,23 @@
 import 'package:blood_bank/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
 
-class OnBoarding2 extends StatelessWidget {
+class OnBoarding2 extends StatefulWidget {
   const OnBoarding2({super.key});
+
+  @override
+  State<OnBoarding2> createState() => _OnBoarding2State();
+}
+
+class _OnBoarding2State extends State<OnBoarding2> {
+  @override
+  void initState() {
+    super.initState();
+    // call function after 1.5 second
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      // navigate to onboarding screen
+      Navigator.pushReplacementNamed(context, '/onboarding3');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

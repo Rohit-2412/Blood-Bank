@@ -9,4 +9,5 @@ class CustomColors {
   static const whiteColor = Color(0xffFFFFFF);
   static const firstGradientColor = Color(0xffFA4848);
   static const secondGradientColor = Color(0xffFF4545);
+  static const buttonBackground = Color(0xa8FF0E0E);
 }
