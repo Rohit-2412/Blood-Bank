@@ -23,7 +23,15 @@ class _ChatScreenState extends State<ChatScreen> {
   ];
 
   void sendMessage() {
-    //
+    var message = _messageController.text;
+    // trim the message to remove any extra spaces
+    message = message.trim();
+    if (message.isNotEmpty) {
+      setState(() {
+        chats.add({"sender": "u1", "message": message});
+        _messageController.clear();
+      });
+    }
   }
 
   @override
@@ -33,18 +41,21 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: CustomColors.firstGradientColor,
         foregroundColor: Colors.white,
         title: const Text(
-          "Messages",
+          "Donor #1",
           style: TextStyle(
               color: Colors.white, fontSize: 24, fontWeight: FontWeight.w500),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.call),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            // box to show donor id and call icon
-            _header(),
-
             // messages
             Expanded(child: getMessages()),
 
@@ -56,66 +67,43 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _header() {
-    return Container(
-      margin: const EdgeInsets.only(
-        bottom: 10,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: CustomColors.firstGradientColor, width: 1.5),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: CustomColors.firstGradientColor.withOpacity(0.5),
-            spreadRadius: 1,
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            "Donor #1",
-            style: TextStyle(
-                fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black),
-          ),
-          Icon(Icons.call, color: Colors.green, size: 28),
-        ],
-      ),
-    );
-  }
-
   Widget getMessages() {
-    return ListView(
-      children: chats.map((e) => _messageTile(context, e)).toList(),
+    // using stream builder to listen to changes in the chats list
+    return StreamBuilder(
+      stream: null,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return ListView.builder(
+          itemCount: chats.length,
+          itemBuilder: (BuildContext context, int index) {
+            return _messageTile(chats[index]);
+          },
+        );
+      },
     );
   }
 
-  Widget _messageTile(BuildContext context, Map<String, String> data) {
+  Widget _messageTile(Map<String, String> data) {
     var isMe = data['sender'] == "u1";
 
-    return Column(
-        crossAxisAlignment:
-            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          chatBubble(data['message'], isMe),
-          const Text(
-            // convert time stamp to hh:mm am/pm format
-            "12:00 am",
-            style: TextStyle(fontSize: 12),
-          ),
-        ]);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            chatBubble(data['message'], isMe),
+            const Text(
+              // convert time stamp to hh:mm am/pm format
+              "12:00 am",
+              style: TextStyle(fontSize: 12),
+            ),
+          ]),
+    );
   }
 
   Widget chatBubble(message, isMe) {
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-      // textDirection: isMe ? TextDirection.rtl : TextDirection.ltr,
       children: [
         Flexible(
           child: LayoutBuilder(
@@ -128,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isMe ? Colors.blueAccent : Colors.grey[300],
+                    color: isMe ? Colors.redAccent : Colors.grey[350],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -147,40 +135,35 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageInput(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-              // message input with rounded border
-              child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: TextField(
-                onSubmitted: (value) => (),
-                controller: _messageController,
-                decoration: const InputDecoration(
-                  hintText: "Type a message",
-                  border: InputBorder.none,
-                ),
+    return Row(
+      children: [
+        Expanded(
+            // message input with rounded border
+            child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: TextField(
+              onSubmitted: (value) => (),
+              controller: _messageController,
+              decoration: const InputDecoration(
+                hintText: "Type a message",
+                border: InputBorder.none,
               ),
             ),
-          )),
-          IconButton(
-            onPressed: sendMessage,
-            icon: const Icon(
-              Icons.send,
-              color: Colors.redAccent,
-            ),
           ),
-        ],
-      ),
+        )),
+        IconButton(
+          onPressed: sendMessage,
+          icon: const Icon(
+            Icons.send,
+            color: Colors.redAccent,
+          ),
+        ),
+      ],
     );
   }
 }

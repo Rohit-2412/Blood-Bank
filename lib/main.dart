@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF5252)),
         useMaterial3: true,
       ),
-      initialRoute: '/chat',
+      initialRoute: '/home_screen',
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/onboarding1': (context) => const OnBoarding1(),

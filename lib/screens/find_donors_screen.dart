@@ -185,17 +185,34 @@ class _FindDonorsState extends State<FindDonors> {
     );
   }
 
+  void handleSubmit() {
+    // if any of the field is empty show error message in snackbar
+    if (bloodType == "" || relation == "" || age == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all the fields"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Request Sent Successfully"),
+        ),
+      );
+    }
+  }
+
   Container _buildSendRequestButton(BuildContext context, Size size) {
     return Container(
       width: size.width,
-      decoration: BoxDecoration(
-          color: Colors.redAccent,
-          borderRadius: const BorderRadius.all(Radius.circular(10))),
+      decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10))),
       child: ElevatedButton(
           // show a snack bar showing successfully sent request
-          onPressed: () {},
+          onPressed: handleSubmit,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 12),
+            backgroundColor: Colors.redAccent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

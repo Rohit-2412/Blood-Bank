@@ -35,6 +35,87 @@ class _RequestsScreenState extends State<RequestsScreen> {
         ));
   }
 
+// handle accept request
+  void acceptRequest() {
+    // show a thank you popup
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Thank you!"),
+            content: const Text(
+                "Your gift of blood is a lifeline that saves lives and brings hope."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          );
+        });
+  }
+
+// handle decline request
+  void declineRequest() {
+    // show a popup stating Are you sure? and 2 buttons to confirm or cancel
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Are you sure?"),
+            content: const Text(
+                "Your choice not to donate is respected, but remember the incredible impact you could have in saving lives through a simple act of giving."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Confirm"),
+              ),
+            ],
+          );
+        });
+  }
+
+  // handle view details
+  void viewDetails() {
+    // show a popup showing patient age and blood group type along with qty
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Request Details"),
+            content: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Patient Age: 20"),
+                SizedBox(height: 10),
+                Text("Blood Group: A+"),
+                SizedBox(height: 10),
+                Text("Quantity: 200 ml"),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Close"),
+              ),
+            ],
+          );
+        });
+  }
+
   Widget _buildRequestCard(BuildContext context, int id) {
     // return a container with req id at left and 2 vertical buttons to accept or decline
     return Container(
@@ -68,16 +149,14 @@ class _RequestsScreenState extends State<RequestsScreen> {
               // view details
               Text.rich(
                 TextSpan(
-                  text: 'View Details',
-                  style: const TextStyle(
-                      fontSize: 16,
-                      color: CustomColors.firstGradientColor,
-                      fontWeight: FontWeight.w500),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      // navigate to details screen
-                    },
-                ),
+                    text: 'View Details',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: CustomColors.firstGradientColor,
+                        fontWeight: FontWeight.w500),
+                    recognizer: TapGestureRecognizer()
+                      // show details of request
+                      ..onTap = viewDetails),
               )
             ],
           ),
@@ -86,7 +165,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
           Column(
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: acceptRequest,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CustomColors.firstGradientColor,
                   shape: RoundedRectangleBorder(
@@ -100,7 +179,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: declineRequest,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CustomColors.whiteColor,
                   shape: RoundedRectangleBorder(
