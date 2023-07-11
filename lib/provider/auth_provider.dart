@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:blood_bank/models/patient_request.dart';
 import 'package:blood_bank/models/user.dart';
 import 'package:blood_bank/screens/auth/otp_input.dart';
 import 'package:blood_bank/utils/widgets.dart';
@@ -178,5 +180,45 @@ class AuthProvider extends ChangeNotifier {
     _userModel = UserModel.fromMap(jsonDecode(data));
     _uid = _userModel!.uid;
     notifyListeners();
+  }
+
+  // saving a request to database
+  Future saveRequest(BuildContext context, PatientRequest request) async {
+    _isLoading = true;
+    try {
+      // add phone number and createdAt
+      request.createdAt = DateTime.now().millisecondsSinceEpoch.toString();
+      request.phoneNumber = _userModel!.phoneNumber;
+
+      // add this data to firestore
+      await _firestore
+          .collection("requests")
+          .doc(generateUniqueId())
+          .set(request.toMap())
+          .then((value) => _isLoading = false);
+    } catch (e) {
+      _isLoading = false;
+      MyWidget.showSnackBar(context, e.toString());
+    }
+  }
+
+  String generateUniqueId() {
+    // create a random 12 digit alphanumeric string
+    String randomString = "";
+
+    const String characters =
+        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    for (int i = 0; i < 20; i++) {
+      int index = Random().nextInt(characters.length);
+      randomString += characters[index];
+
+      // add a hyphen after 4 characters
+      if (i % 4 == 0 && i != 0) {
+        randomString += "-";
+      }
+    }
+
+    return randomString;
   }
 }

@@ -1,5 +1,9 @@
 import 'package:blood_bank/constants/custom_colors.dart';
+import 'package:blood_bank/models/patient_request.dart';
+import 'package:blood_bank/provider/auth_provider.dart';
+import 'package:blood_bank/utils/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FindDonors extends StatefulWidget {
   const FindDonors({super.key});
@@ -9,10 +13,12 @@ class FindDonors extends StatefulWidget {
 }
 
 class _FindDonorsState extends State<FindDonors> {
-  bool isMale = true;
+  String gender = "";
   String bloodType = "";
   String relation = "";
   String age = "";
+
+  List<String> genders = ["Male", "Female"];
 
   List<String> bloodGroups = [
     "A+",
@@ -34,6 +40,8 @@ class _FindDonorsState extends State<FindDonors> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final isLoading =
+        Provider.of<AuthProvider>(context, listen: true).isLoading;
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -46,68 +54,75 @@ class _FindDonorsState extends State<FindDonors> {
                 fontSize: 24,
               )),
         ),
-        body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text("Patient Blood Type",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                  )),
-              const SizedBox(height: 10),
-
-              // display 8 buttons for blood types to choose from
-              _buildBloodGroupButtons(size),
-
-              const SizedBox(height: 30),
-
-              const Text(
-                "Patient Gender",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.redAccent,
                 ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // display 2 buttons male / female to choose from
-              _buildGenderRow(),
-
-              const SizedBox(height: 30),
-
-              const Text(
-                "Patient Relation",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // display 3 buttons for relations to choose from
-              _buildRelationRow(),
-
-              const SizedBox(height: 30),
-
-              _buildPatientAgeComponent(),
-
-              const Spacer(),
-
-              // send requests button
-              _buildSendRequestButton(context, size),
-
-              const SizedBox(
-                height: 50,
               )
-            ],
-          ),
-        ));
+            : Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    const Text("Patient Blood Type",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        )),
+                    const SizedBox(height: 10),
+
+                    // display 8 buttons for blood types to choose from
+                    _buildBloodGroupButtons(size),
+
+                    const SizedBox(height: 30),
+
+                    const Text(
+                      "Patient Gender",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // display 2 buttons male / female to choose from
+                    _buildGenderRow(),
+
+                    const SizedBox(height: 30),
+
+                    const Text(
+                      "Patient Relation",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // display 3 buttons for relations to choose from
+                    _buildRelationRow(),
+
+                    const SizedBox(height: 30),
+
+                    _buildPatientAgeComponent(),
+
+                    const Spacer(),
+
+                    // send requests button
+                    _buildSendRequestButton(context, size),
+
+                    const SizedBox(
+                      height: 50,
+                    )
+                  ],
+                ),
+              ));
   }
 
   Center _buildBloodGroupButtons(Size size) {
@@ -121,13 +136,35 @@ class _FindDonorsState extends State<FindDonors> {
     );
   }
 
-  Row _buildGenderRow() {
+  Widget _buildGenderRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        getGenderButton("Male", isMale),
-        getGenderButton("Female", !isMale),
-      ],
+      children: genders.map((e) => getGenderButton(e, e)).toList(),
+    );
+  }
+
+  Widget getGenderButton(String label, String choice) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          gender = choice;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            gender == choice ? CustomColors.firstGradientColor : Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
+            color: gender == choice ? Colors.white : Colors.red),
+      ),
     );
   }
 
@@ -188,17 +225,23 @@ class _FindDonorsState extends State<FindDonors> {
   void handleSubmit() {
     // if any of the field is empty show error message in snackbar
     if (bloodType == "" || relation == "" || age == "") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all the fields"),
-        ),
-      );
+      MyWidget.showSnackBar(context, "Please fill all the fields");
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Request Sent Successfully"),
-        ),
+      final ap = Provider.of<AuthProvider>(context, listen: false);
+
+      PatientRequest request = PatientRequest(
+        age: age,
+        gender: gender,
+        bloodType: bloodType,
+        relation: relation,
+        phoneNumber: '',
+        createdAt: '',
       );
+
+      ap.saveRequest(context, request).then(
+            (value) =>
+                MyWidget.showSnackBar(context, "Request Sent Successfully"),
+          );
     }
   }
 
@@ -225,34 +268,6 @@ class _FindDonorsState extends State<FindDonors> {
     );
   }
 
-  Widget getGenderButton(String label, bool gender) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          if (isMale && label == "Female") {
-            isMale = false;
-          } else if (!isMale && label == "Male") {
-            isMale = true;
-          }
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: gender ? Colors.red : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            color: gender ? Colors.white : Colors.red),
-      ),
-    );
-  }
-
   Widget _buildBloodTypeButton(String label, String choice, Size size) {
     // use inkwell and container to make a button which has red bg is selected with a shadow in all
     return InkWell(
@@ -265,9 +280,7 @@ class _FindDonorsState extends State<FindDonors> {
         width: size.width * 0.2,
         height: size.height * 0.05,
         decoration: BoxDecoration(
-          color: bloodType == choice
-              ? CustomColors.firstGradientColor
-              : Colors.white,
+          color: bloodType == choice ? Colors.redAccent : Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -297,11 +310,7 @@ class _FindDonorsState extends State<FindDonors> {
     return ElevatedButton(
       onPressed: () {
         setState(() {
-          if (relation == choice) {
-            relation = "";
-          } else {
-            relation = choice;
-          }
+          relation = choice;
         });
       },
       style: ElevatedButton.styleFrom(
