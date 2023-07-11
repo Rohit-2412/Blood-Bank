@@ -6,9 +6,7 @@ import 'package:blood_bank/screens/auth/sign_up_form.dart';
 import 'package:blood_bank/screens/chat_screen.dart';
 import 'package:blood_bank/screens/history_screen.dart';
 import 'package:blood_bank/screens/home_screen.dart';
-import 'package:blood_bank/screens/WelcomeScreen/welcome_1.dart';
-import 'package:blood_bank/screens/WelcomeScreen/welcome_2.dart';
-import 'package:blood_bank/screens/WelcomeScreen/welcome_3.dart';
+import 'package:blood_bank/screens/welcome_screen.dart';
 import 'package:blood_bank/screens/messages_screen.dart';
 import 'package:blood_bank/screens/requests_screen.dart';
 import 'package:blood_bank/screens/settings_screen.dart';
@@ -41,12 +39,10 @@ class MyApp extends StatelessWidget {
                 ColorScheme.fromSeed(seedColor: const Color(0xFFFF5252)),
             useMaterial3: true,
           ),
-          initialRoute: '/onboarding3',
+          initialRoute: '/onboarding',
           routes: {
             '/splash': (context) => const SplashScreen(),
-            '/onboarding1': (context) => const OnBoarding1(),
-            '/onboarding2': (context) => const OnBoarding2(),
-            '/onboarding3': (context) => const OnBoarding3(),
+            '/onboarding': (context) => const WelcomeScreen(),
             '/phone_number_input': (context) => const PhoneNumberInput(),
             '/otp_input': (context) => const OtpInput(verificationId: "123"),
             '/sign_up_form': (context) => const SignUpForm(),

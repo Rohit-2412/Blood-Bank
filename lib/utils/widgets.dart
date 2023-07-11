@@ -26,6 +26,12 @@ class MyWidget {
     Navigator.pushNamed(context, name);
   }
 
+  // welcome screen text style
+  static TextStyle heading = const TextStyle(
+      color: CustomColors.whiteColor,
+      fontSize: 24,
+      fontWeight: FontWeight.w500);
+
   // show snack bar
   static void showSnackBar(BuildContext context, String content) {
     ScaffoldMessenger.of(context)
