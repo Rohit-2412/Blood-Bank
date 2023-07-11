@@ -13,11 +13,12 @@ class FindDonors extends StatefulWidget {
 }
 
 class _FindDonorsState extends State<FindDonors> {
+  final _ageController = TextEditingController();
+  final _quantityController = TextEditingController();
+
   String gender = "";
   String bloodType = "";
   String relation = "";
-  String age = "";
-  String quantity = "";
 
   List<String> genders = ["Male", "Female"];
 
@@ -200,11 +201,7 @@ class _FindDonorsState extends State<FindDonors> {
           SizedBox(
             width: 100,
             child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  age = value;
-                });
-              },
+              controller: _ageController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 focusedBorder: OutlineInputBorder(
@@ -232,26 +229,37 @@ class _FindDonorsState extends State<FindDonors> {
 
   void handleSubmit() {
     // if any of the field is empty show error message in snackbar
-    if (bloodType == "" || relation == "" || age == "" || quantity == "") {
+    if (bloodType == "" ||
+        relation == "" ||
+        _ageController.text.isEmpty ||
+        _quantityController.text.isEmpty) {
       MyWidget.showSnackBar(context, "Please fill all the fields");
     } else {
       final ap = Provider.of<AuthProvider>(context, listen: false);
 
       PatientRequest request = PatientRequest(
-        age: age,
+        age: _ageController.text.trim(),
         gender: gender,
         bloodType: bloodType,
         relation: relation,
         phoneNumber: '',
         createdAt: '',
         id: '',
-        qty: quantity,
+        qty: _quantityController.text.trim(),
       );
 
-      ap.saveRequest(context, request).then(
-            (value) =>
-                MyWidget.showSnackBar(context, "Request Sent Successfully"),
-          );
+      ap.saveRequest(context, request).then((value) {
+        MyWidget.showSnackBar(context, "Request Sent Successfully");
+
+        // clear all the fields
+        setState(() {
+          gender = "";
+          bloodType = "";
+          relation = "";
+          _ageController.clear();
+          _quantityController.clear();
+        });
+      });
     }
   }
 
@@ -359,11 +367,7 @@ class _FindDonorsState extends State<FindDonors> {
           SizedBox(
             width: 100,
             child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  quantity = value;
-                });
-              },
+              controller: _quantityController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 focusedBorder: OutlineInputBorder(

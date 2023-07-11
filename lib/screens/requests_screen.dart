@@ -1,9 +1,11 @@
 import 'package:blood_bank/constants/custom_colors.dart';
+import 'package:blood_bank/provider/auth_provider.dart';
 import 'package:blood_bank/utils/helper_functions.dart';
 import 'package:blood_bank/utils/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RequestsScreen extends StatefulWidget {
   const RequestsScreen({super.key});
@@ -32,10 +34,12 @@ class _RequestsScreenState extends State<RequestsScreen> {
   }
 
   Widget _buildRequests() {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
     return StreamBuilder(
+        // filter requests where status is pending, and it is not in the declined_requests array of user
         stream: FirebaseFirestore.instance
             .collection("requests")
-            .orderBy("createdAt", descending: true)
+            .where("status", isEqualTo: "pending")
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
@@ -52,7 +56,13 @@ class _RequestsScreenState extends State<RequestsScreen> {
             );
           }
 
-          if (snapshot.data!.docs.isEmpty) {
+          // Filter out the documents where declined_by contains user.uid
+          // This is done to prevent user from seeing requests that he has declined
+          final filteredDocs = snapshot.data!.docs.where((doc) {
+            final declinedBy = doc["declined_by"] as List<dynamic>;
+            return !declinedBy.contains(ap.uid);
+          }).toList();
+          if (snapshot.data!.docs.isEmpty || filteredDocs.isEmpty) {
             return Center(
               child: Text(
                 "No requests found!",
@@ -62,10 +72,9 @@ class _RequestsScreenState extends State<RequestsScreen> {
           }
 
           return ListView(
-            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+            children: filteredDocs.map((DocumentSnapshot document) {
               Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
-              // pass index of document to _buildRequestCard
               return _buildRequestCard(context, data);
             }).toList(),
           );
@@ -73,8 +82,11 @@ class _RequestsScreenState extends State<RequestsScreen> {
   }
 
 // handle accept request
-  void acceptRequest() {
+  Future<void> acceptRequest(String id) async {
     // show a thank you popup
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+
+    ap.addAcceptedRequest(context, id);
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -95,7 +107,8 @@ class _RequestsScreenState extends State<RequestsScreen> {
   }
 
 // handle decline request
-  void declineRequest() {
+  void declineRequest(Map<String, dynamic> data) {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
     // show a popup stating Are you sure? and 2 buttons to confirm or cancel
     showDialog(
         context: context,
@@ -113,6 +126,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
               ),
               TextButton(
                 onPressed: () {
+                  ap.addDeclinedRequest(context, data['id']);
                   Navigator.of(context).pop();
                 },
                 child: const Text("Confirm"),
@@ -207,7 +221,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
           Column(
             children: [
               ElevatedButton(
-                onPressed: acceptRequest,
+                onPressed: () => acceptRequest(data['id']),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CustomColors.firstGradientColor,
                   shape: RoundedRectangleBorder(
@@ -221,7 +235,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: declineRequest,
+                onPressed: () => declineRequest(data),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: CustomColors.whiteColor,
                   shape: RoundedRectangleBorder(

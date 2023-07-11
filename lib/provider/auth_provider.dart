@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:blood_bank/models/patient_request.dart';
 import 'package:blood_bank/models/user.dart';
 import 'package:blood_bank/screens/auth/otp_input.dart';
+import 'package:blood_bank/utils/helper_functions.dart';
 import 'package:blood_bank/utils/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -189,7 +189,7 @@ class AuthProvider extends ChangeNotifier {
       // add phone number and createdAt and id
       request.createdAt = DateTime.now().millisecondsSinceEpoch.toString();
       request.phoneNumber = _userModel!.phoneNumber;
-      request.id = generateUniqueId();
+      request.id = HelperFunctions.generateUniqueId();
 
       // add this data to firestore
       await _firestore
@@ -203,23 +203,40 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  String generateUniqueId() {
-    // create a random 12 digit alphanumeric string
-    String randomString = "";
+  // add accepted request to users accepted requests list
+  Future addAcceptedRequest(BuildContext context, String id) async {
+    _isLoading = true;
 
-    const String characters =
-        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    try {
+      _firestore.collection("users").doc(_uid).update({
+        "accepted_requests": FieldValue.arrayUnion([id])
+      }).then((value) => _isLoading = false);
 
-    for (int i = 0; i < 20; i++) {
-      int index = Random().nextInt(characters.length);
-      randomString += characters[index];
-
-      // add a hyphen after 4 characters
-      if (i % 4 == 0 && i != 0) {
-        randomString += "-";
-      }
+      // set the value of status in the request to accepted
+      await _firestore.collection("requests").doc(id).set({
+        "status": "accepted",
+      }, SetOptions(merge: true));
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      MyWidget.showSnackBar(context, e.toString());
     }
+  }
 
-    return randomString;
+  // add declined request to users declined requests list
+  Future addDeclinedRequest(BuildContext context, String id) async {
+    _isLoading = true;
+
+    try {
+      // add the uid of user to the declined_by array of request
+      await _firestore.collection("requests").doc(id).update({
+        "declined_by": FieldValue.arrayUnion([_uid])
+      });
+      notifyListeners();
+      _isLoading = false;
+    } catch (e) {
+      _isLoading = false;
+      MyWidget.showSnackBar(context, e.toString());
+    }
   }
 }

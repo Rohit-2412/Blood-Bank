@@ -7,6 +7,7 @@ class PatientRequest {
   String createdAt;
   String phoneNumber;
   String qty;
+  String status = "pending";
 
   PatientRequest({
     required this.id,
@@ -42,6 +43,7 @@ class PatientRequest {
       'createdAt': createdAt,
       'id': id,
       'qty': qty,
+      'status': status,
     };
   }
 }
