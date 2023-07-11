@@ -25,4 +25,10 @@ class MyWidget {
   static void navigateTo(BuildContext context, String name) {
     Navigator.pushNamed(context, name);
   }
+
+  // show snack bar
+  static void showSnackBar(BuildContext context, String content) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(content)));
+  }
 }

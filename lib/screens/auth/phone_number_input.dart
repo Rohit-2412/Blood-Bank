@@ -1,5 +1,7 @@
 import 'package:blood_bank/constants/custom_colors.dart';
+import 'package:blood_bank/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PhoneNumberInput extends StatefulWidget {
   const PhoneNumberInput({super.key});
@@ -14,15 +16,13 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
 
   // set initial text as +91
   _PhoneNumberInputState() {
-    _controller.text = "+91 ";
+    _controller.text = "+91";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SizedBox(
-        height: double.maxFinite,
-        width: double.maxFinite,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -99,9 +99,9 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
   }
 
   // function to get number from text field and validate it
-  void handleClick(context) {
-    String number = _controller.text;
-    if (number.length != 14) {
+  void handleClick(context) async {
+    String phoneNumber = _controller.text;
+    if (phoneNumber.length != 13) {
       // show alert dialog
       showDialog(
         context: context,
@@ -110,8 +110,8 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
         },
       );
     } else {
-      // navigate to otp input screen
-      Navigator.pushNamed(context, '/otp_input', arguments: number);
+      final ap = Provider.of<AuthProvider>(context, listen: false);
+      ap.signInWithPhone(context, phoneNumber);
     }
   }
 

@@ -1,8 +1,16 @@
 import 'package:blood_bank/constants/custom_colors.dart';
+import 'package:blood_bank/screens/auth/sign_up_form.dart';
+import 'package:blood_bank/screens/home_screen.dart';
+import 'package:blood_bank/utils/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
+
+import '../../provider/auth_provider.dart';
 
 class OtpInput extends StatefulWidget {
-  const OtpInput({super.key});
+  final String verificationId;
+  const OtpInput({super.key, required this.verificationId});
 
   @override
   State<OtpInput> createState() => _OtpInputState();
@@ -10,167 +18,156 @@ class OtpInput extends StatefulWidget {
 
 class _OtpInputState extends State<OtpInput> {
   String otp = "";
-  bool isValid = false;
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      otp = "";
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     String? number = ModalRoute.of(context)!.settings.arguments as String?;
 
+    final isLoading =
+        Provider.of<AuthProvider>(context, listen: true).isLoading;
+
     return Scaffold(
-        body: SizedBox(
-      height: double.maxFinite,
-      width: double.maxFinite,
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50),
-            // heading
-            const Text(
-              "OTP Verification",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black),
-            ),
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                color: Colors.redAccent,
+              ))
+            : Center(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 50),
+                      // heading
+                      const Text(
+                        "OTP Verification",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black),
+                      ),
 
-            // enter the otp sent to your number
-            const SizedBox(height: 20),
-            Text(
-              "Enter the OTP sent to $number",
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  color: CustomColors.grayColor),
-            ),
+                      // enter the otp sent to your number
+                      const SizedBox(height: 20),
+                      Text(
+                        "Enter the OTP sent to $number",
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                            color: CustomColors.grayColor),
+                      ),
+                      const SizedBox(height: 20),
+                      // Row having 4 boxes for otp using list view
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Pinput(
+                          length: 6,
+                          showCursor: true,
+                          defaultPinTheme: PinTheme(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: CustomColors.firstGradientColor),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          onChanged: (String pin) {
+                            setState(() {
+                              otp = pin;
+                            });
+                          },
+                        ),
+                      ),
 
-            // Row having 4 boxes for otp using list view
-            const SizedBox(height: 40),
-            SizedBox(
-              height: 50,
-              width: 300,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return otpInputBox(context, index);
-                },
-              ),
-            ),
+                      const SizedBox(height: 20),
 
-            const SizedBox(height: 20),
+                      // resend otp
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Didn't receive OTP?",
+                            style: TextStyle(
+                                fontSize: 20, color: CustomColors.grayColor),
+                          ),
+                          const SizedBox(width: 5),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              "Resend OTP",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: CustomColors.primaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // verify button
+                      const SizedBox(height: 40),
 
-            // resend otp
-            // "Didn't receive OTP?<black color> Resend OTP <as button> with red color", (in single line)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Didn't receive OTP?",
-                  style: TextStyle(fontSize: 20, color: CustomColors.grayColor),
-                ),
-                const SizedBox(width: 5),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    "Resend OTP",
-                    style: TextStyle(
-                        fontSize: 20, color: CustomColors.primaryColor),
-                  ),
-                ),
-              ],
-            ),
-            // verify button
-            const SizedBox(height: 40),
-
-            SizedBox(
-              height: 50,
-              width: 300,
-              child: ElevatedButton(
-                onPressed: () {
-                  handleClick();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isValid
-                      ? CustomColors.buttonBackground
-                      : CustomColors.grayColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  "Verify",
-                  style:
-                      TextStyle(fontSize: 24, color: CustomColors.whiteColor),
-                ),
-              ),
-            ),
-          ]),
-    ));
+                      SizedBox(
+                        height: 50,
+                        width: 300,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (otp.length == 6) {
+                              verifyOtp(context, otp);
+                            } else {
+                              MyWidget.showSnackBar(
+                                  context, "Please enter a valid OTP");
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: CustomColors.buttonBackground,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            "Verify",
+                            style: TextStyle(
+                                fontSize: 24, color: CustomColors.whiteColor),
+                          ),
+                        ),
+                      ),
+                    ]),
+              ));
   }
 
-  void handleClick() {
-    // check for otp if all characters are numbers
-    if (otp.length == 4 && int.tryParse(otp) != null) {
-      Navigator.pushNamed(context, '/sign_up_form');
-    }
-  }
-
-  Widget otpInputBox(context, index) {
-    return Container(
-      height: 60,
-      width: 50,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 20,
-      ),
-      decoration: const BoxDecoration(
-        // bottom border only
-        border: Border(
-          bottom: BorderSide(color: CustomColors.primaryColor, width: 2),
-        ),
-      ),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        autofocus: true,
-        // focus node to move to next box
-        onChanged: (value) {
-          // if removed the number, focus to previous box
-          if (value.isEmpty && index != 0) {
-            FocusScope.of(context).previousFocus();
-          } else if (value.length == 1 && index != 3) {
-            FocusScope.of(context).nextFocus();
-          }
-
-          // if user enters the number, store it in otp, if removed the number, remove it from otp
-          setState(() {
-            if (value.isNotEmpty) {
-              otp += value;
+  void verifyOtp(BuildContext context, String otp) {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+    ap.verifyOtp(
+        context: context,
+        verificationId: widget.verificationId,
+        otp: otp,
+        onSuccess: () {
+          // whether user exist in db
+          ap.checkExistingUser().then((value) async {
+            if (value == true) {
+              // user exists
+              ap
+                  .getDataFromFirestore()
+                  .then((value) => ap.storeDataToSP())
+                  .then((value) => ap.setSignIn())
+                  .then((value) => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: ((context) => const HomeScreen()),
+                      ),
+                      (route) => false));
             } else {
-              otp = otp.substring(0, otp.length - 1);
+              // no user exists
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignUpForm()),
+                  (route) => false);
             }
-            isValid = otp.length == 4;
           });
-        },
-        style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: CustomColors.blackColor),
-        decoration: const InputDecoration(
-          counterText: "",
-          border: InputBorder.none,
-        ),
-      ),
-    );
+        });
   }
 }
