@@ -186,14 +186,15 @@ class AuthProvider extends ChangeNotifier {
   Future saveRequest(BuildContext context, PatientRequest request) async {
     _isLoading = true;
     try {
-      // add phone number and createdAt
+      // add phone number and createdAt and id
       request.createdAt = DateTime.now().millisecondsSinceEpoch.toString();
       request.phoneNumber = _userModel!.phoneNumber;
+      request.id = generateUniqueId();
 
       // add this data to firestore
       await _firestore
           .collection("requests")
-          .doc(generateUniqueId())
+          .doc(request.id)
           .set(request.toMap())
           .then((value) => _isLoading = false);
     } catch (e) {

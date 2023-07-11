@@ -1,6 +1,7 @@
-import 'dart:math';
-
 import 'package:blood_bank/constants/custom_colors.dart';
+import 'package:blood_bank/utils/helper_functions.dart';
+import 'package:blood_bank/utils/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -26,13 +27,49 @@ class _RequestsScreenState extends State<RequestsScreen> {
         ),
         body: Container(
           color: Colors.grey[200],
-          child: ListView.builder(
-            itemCount: 10,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildRequestCard(context, Random().nextInt(9000));
-            },
-          ),
+          child: _buildRequests(),
         ));
+  }
+
+  Widget _buildRequests() {
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection("requests")
+            .orderBy("createdAt", descending: true)
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text("Something went wrong"),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.redAccent,
+              ),
+            );
+          }
+
+          if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Text(
+                "No requests found!",
+                style: MyWidget.textXl.copyWith(fontWeight: FontWeight.w500),
+              ),
+            );
+          }
+
+          return ListView(
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data =
+                  document.data() as Map<String, dynamic>;
+              // pass index of document to _buildRequestCard
+              return _buildRequestCard(context, data);
+            }).toList(),
+          );
+        });
   }
 
 // handle accept request
@@ -86,22 +123,25 @@ class _RequestsScreenState extends State<RequestsScreen> {
   }
 
   // handle view details
-  void viewDetails() {
+  void viewDetails(Map<String, dynamic> data) {
     // show a popup showing patient age and blood group type along with qty
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text("Request Details"),
-            content: const Column(
+            content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Patient Age: 20"),
-                SizedBox(height: 10),
-                Text("Blood Group: A+"),
-                SizedBox(height: 10),
-                Text("Quantity: 200 ml"),
+                Text("Patient Age: ${data['age']} yrs"),
+                const SizedBox(height: 10),
+                Text("Blood Group: ${data['bloodGroup']}"),
+                const SizedBox(height: 10),
+                Text("Quantity: ${data['qty']} ml"),
+                const SizedBox(height: 10),
+                Text(
+                    "Requested on: ${HelperFunctions.formatTime(data['createdAt'])}"),
               ],
             ),
             actions: [
@@ -116,7 +156,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
         });
   }
 
-  Widget _buildRequestCard(BuildContext context, int id) {
+  Widget _buildRequestCard(BuildContext context, Map<String, dynamic> data) {
     // return a container with req id at left and 2 vertical buttons to accept or decline
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -140,7 +180,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Requester #$id",
+              Text("Requester ${data['id'].split("-")[0]}",
                   style: const TextStyle(
                       fontSize: 24,
                       color: Colors.black,
@@ -156,7 +196,9 @@ class _RequestsScreenState extends State<RequestsScreen> {
                         fontWeight: FontWeight.w500),
                     recognizer: TapGestureRecognizer()
                       // show details of request
-                      ..onTap = viewDetails),
+                      ..onTap = () {
+                        viewDetails(data);
+                      }),
               )
             ],
           ),

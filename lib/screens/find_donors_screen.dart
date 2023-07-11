@@ -17,6 +17,7 @@ class _FindDonorsState extends State<FindDonors> {
   String bloodType = "";
   String relation = "";
   String age = "";
+  String quantity = "";
 
   List<String> genders = ["Male", "Female"];
 
@@ -112,6 +113,11 @@ class _FindDonorsState extends State<FindDonors> {
 
                     _buildPatientAgeComponent(),
 
+                    const SizedBox(height: 30),
+
+                    // quantity box
+                    _buildQuantityBox(),
+
                     const Spacer(),
 
                     // send requests button
@@ -178,8 +184,10 @@ class _FindDonorsState extends State<FindDonors> {
   SizedBox _buildPatientAgeComponent() {
     return SizedBox(
       height: 40,
+      width: 250,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
             "Patient Age",
@@ -190,7 +198,7 @@ class _FindDonorsState extends State<FindDonors> {
           ),
           const SizedBox(width: 20),
           SizedBox(
-            width: 75,
+            width: 100,
             child: TextField(
               onChanged: (value) {
                 setState(() {
@@ -224,7 +232,7 @@ class _FindDonorsState extends State<FindDonors> {
 
   void handleSubmit() {
     // if any of the field is empty show error message in snackbar
-    if (bloodType == "" || relation == "" || age == "") {
+    if (bloodType == "" || relation == "" || age == "" || quantity == "") {
       MyWidget.showSnackBar(context, "Please fill all the fields");
     } else {
       final ap = Provider.of<AuthProvider>(context, listen: false);
@@ -236,6 +244,8 @@ class _FindDonorsState extends State<FindDonors> {
         relation: relation,
         phoneNumber: '',
         createdAt: '',
+        id: '',
+        qty: quantity,
       );
 
       ap.saveRequest(context, request).then(
@@ -326,6 +336,55 @@ class _FindDonorsState extends State<FindDonors> {
             fontSize: 20,
             fontWeight: FontWeight.w400,
             color: relation == choice ? Colors.white : Colors.red),
+      ),
+    );
+  }
+
+  Widget _buildQuantityBox() {
+    return SizedBox(
+      height: 40,
+      width: 250,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            "Quantity (in ml)",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 20),
+          SizedBox(
+            width: 100,
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  quantity = value;
+                });
+              },
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(
+                      color: CustomColors.firstGradientColor, width: 2),
+                ),
+                hintText: "Quantity",
+                hintStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
