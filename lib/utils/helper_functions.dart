@@ -2,8 +2,14 @@ import 'dart:math';
 
 import 'package:intl/intl.dart';
 
-// return time in format hh:mm if date is same otherwise return date in format dd/mm hh:mm
 class HelperFunctions {
+  // return data in format of dd/mm/yy
+  static String formatDate(String timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp));
+    return DateFormat('dd/MM/yy').format(date);
+  }
+
+  // return time in format hh:mm if date is same otherwise return date in format dd/mm hh:mm
   static String formatTime(String timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp));
     final now = DateTime.now();

@@ -208,13 +208,14 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
 
     try {
-      _firestore.collection("users").doc(_uid).update({
+      await _firestore.collection("users").doc(_uid).update({
         "accepted_requests": FieldValue.arrayUnion([id])
-      }).then((value) => _isLoading = false);
+      });
 
       // set the value of status in the request to accepted
       await _firestore.collection("requests").doc(id).set({
         "status": "accepted",
+        "donor": uid,
       }, SetOptions(merge: true));
       notifyListeners();
     } catch (e) {
