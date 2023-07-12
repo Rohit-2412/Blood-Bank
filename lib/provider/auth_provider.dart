@@ -140,11 +140,11 @@ class AuthProvider extends ChangeNotifier {
       _userModel = user;
 
       // upload to database
-      await _firestore
-          .collection("users")
-          .doc(_uid)
-          .set(user.toMap())
-          .then((value) {
+      await _firestore.collection("users").doc(_uid).set(user.toMap());
+
+      // add an empty array for accepted_requests
+      await _firestore.collection("users").doc(_uid).set(
+          {"accepted_requests": []}, SetOptions(merge: true)).then((value) {
         onSuccess();
         _isLoading = false;
         notifyListeners();
@@ -195,8 +195,12 @@ class AuthProvider extends ChangeNotifier {
       await _firestore
           .collection("requests")
           .doc(request.id)
-          .set(request.toMap())
-          .then((value) => _isLoading = false);
+          .set(request.toMap());
+
+      // add an empty array for declined_by
+      await _firestore.collection("requests").doc(request.id).set(
+          {"declined_by": []},
+          SetOptions(merge: true)).then((value) => _isLoading = false);
     } catch (e) {
       _isLoading = false;
       MyWidget.showSnackBar(context, e.toString());
@@ -239,5 +243,10 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       MyWidget.showSnackBar(context, e.toString());
     }
+  }
+
+  // chat services
+  Future createChatRoom(String otherUserId) async {
+    //
   }
 }

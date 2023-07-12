@@ -37,6 +37,7 @@ class _SignUpFormState extends State<SignUpForm> {
         Provider.of<AuthProvider>(context, listen: true).isLoading;
     return Scaffold(
       backgroundColor: CustomColors.firstGradientColor,
+      resizeToAvoidBottomInset: false,
       body: isLoading == true
           ? const Center(
               child: CircularProgressIndicator(
@@ -150,7 +151,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           color: CustomColors.whiteColor,
                           fontSize: 24,
                           letterSpacing: 2),
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.multiline,
                       maxLines: 1,
                       decoration: MyWidget.outlineDec.copyWith(
                         label: const Text(
@@ -165,7 +166,8 @@ class _SignUpFormState extends State<SignUpForm> {
                     // input for blood group
                     TextFormField(
                       autofocus: true,
-                      autocorrect: false,
+                      autocorrect: true,
+                      textCapitalization: TextCapitalization.characters,
                       onChanged: (value) {
                         setState(() {
                           bloodGroup = value;
@@ -175,7 +177,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           color: CustomColors.whiteColor,
                           fontSize: 24,
                           letterSpacing: 2),
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.name,
                       maxLines: 1,
                       decoration: MyWidget.outlineDec.copyWith(
                         label: const Text(

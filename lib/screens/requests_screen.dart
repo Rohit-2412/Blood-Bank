@@ -56,13 +56,23 @@ class _RequestsScreenState extends State<RequestsScreen> {
             );
           }
 
+          if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Text(
+                "No requests found!",
+                style: MyWidget.textXl.copyWith(fontWeight: FontWeight.w500),
+              ),
+            );
+          }
+
           // Filter out the documents where declined_by contains user.uid
           // This is done to prevent user from seeing requests that he has declined
           final filteredDocs = snapshot.data!.docs.where((doc) {
             final declinedBy = doc["declined_by"] as List<dynamic>;
             return !declinedBy.contains(ap.uid);
           }).toList();
-          if (snapshot.data!.docs.isEmpty || filteredDocs.isEmpty) {
+
+          if (filteredDocs.isEmpty) {
             return Center(
               child: Text(
                 "No requests found!",

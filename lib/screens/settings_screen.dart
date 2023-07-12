@@ -1,4 +1,6 @@
+import 'package:blood_bank/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -10,6 +12,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red[400],
@@ -37,70 +41,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
               ),
+              const SizedBox(height: 40),
 
               // name
-              const SizedBox(height: 40),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Name",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-                  ),
-                  Text("John Doe",
-                      style: TextStyle(fontSize: 24, color: Colors.black87)),
-                ],
-              ),
+              _buildRow("Name", ap.userModel.name),
               const SizedBox(height: 20),
 
               // date of birth
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Date of Birth",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-                  ),
-                  Text("01/01/2000",
-                      style: TextStyle(fontSize: 24, color: Colors.black87)),
-                ],
-              ),
+              _buildRow("Date of Birth", ap.userModel.dob),
               const SizedBox(height: 20),
 
               // age
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Age",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-                  ),
-                  Text("21",
-                      style: TextStyle(fontSize: 24, color: Colors.black87)),
-                ],
-              ),
+              _buildRow("Age", '${ap.userModel.age.toString()} yrs'),
               const SizedBox(height: 20),
 
               // blood group
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Blood Group",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-                  ),
-                  Text("A+",
-                      style: TextStyle(fontSize: 24, color: Colors.black87)),
-                ],
-              )
+              _buildRow("Blood Group", ap.userModel.bloodGroup),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Row _buildRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+        ),
+        Text(value,
+            style: const TextStyle(fontSize: 20, color: Colors.black87)),
+      ],
     );
   }
 }

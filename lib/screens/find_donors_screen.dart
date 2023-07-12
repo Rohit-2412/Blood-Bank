@@ -197,7 +197,6 @@ class _FindDonorsState extends State<FindDonors> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 20),
           SizedBox(
             width: 100,
             child: TextField(
@@ -363,7 +362,6 @@ class _FindDonorsState extends State<FindDonors> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(width: 20),
           SizedBox(
             width: 100,
             child: TextField(

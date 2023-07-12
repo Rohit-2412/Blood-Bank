@@ -1,6 +1,5 @@
 import 'package:blood_bank/firebase_options.dart';
 import 'package:blood_bank/provider/auth_provider.dart';
-import 'package:blood_bank/screens/auth/otp_input.dart';
 import 'package:blood_bank/screens/auth/phone_number_input.dart';
 import 'package:blood_bank/screens/auth/sign_up_form.dart';
 import 'package:blood_bank/screens/chat_screen.dart';
@@ -35,16 +34,13 @@ class MyApp extends StatelessWidget {
           title: 'Blood Bank',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            colorScheme:
-                ColorScheme.fromSeed(seedColor: const Color(0xFFFF5252)),
             useMaterial3: true,
           ),
-          initialRoute: '/onboarding',
+          initialRoute: '/welcome',
           routes: {
             '/splash': (context) => const SplashScreen(),
-            '/onboarding': (context) => const WelcomeScreen(),
+            '/welcome': (context) => const WelcomeScreen(),
             '/phone_number_input': (context) => const PhoneNumberInput(),
-            '/otp_input': (context) => const OtpInput(verificationId: "123"),
             '/sign_up_form': (context) => const SignUpForm(),
             '/home': (context) => const HomeScreen(),
             '/find_donors': (context) => const FindDonors(),
