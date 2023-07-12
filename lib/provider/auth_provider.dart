@@ -199,8 +199,10 @@ class AuthProvider extends ChangeNotifier {
 
       // add an empty array for declined_by
       await _firestore.collection("requests").doc(request.id).set(
-          {"declined_by": []},
+          {"declined_by": [], "requested_by": _uid, "donor": ""},
           SetOptions(merge: true)).then((value) => _isLoading = false);
+
+      notifyListeners();
     } catch (e) {
       _isLoading = false;
       MyWidget.showSnackBar(context, e.toString());

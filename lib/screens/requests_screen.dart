@@ -67,10 +67,13 @@ class _RequestsScreenState extends State<RequestsScreen> {
 
           // Filter out the documents where declined_by contains user.uid
           // This is done to prevent user from seeing requests that he has declined
-          final filteredDocs = snapshot.data!.docs.where((doc) {
+          var filteredDocs = snapshot.data!.docs.where((doc) {
             final declinedBy = doc["declined_by"] as List<dynamic>;
             return !declinedBy.contains(ap.uid);
           }).toList();
+
+          // remove requests requested by me
+          // TODO
 
           if (filteredDocs.isEmpty) {
             return Center(

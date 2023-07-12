@@ -1,6 +1,7 @@
 import 'package:blood_bank/utils/helper_functions.dart';
 import 'package:blood_bank/constants/custom_colors.dart';
 import 'package:blood_bank/provider/auth_provider.dart';
+import 'package:blood_bank/utils/widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return StreamBuilder(
         stream: firestore
             .collection("requests")
-            .where("donor", isEqualTo: ap.uid)
+            .where("requested_by", isEqualTo: ap.uid)
+            .where("status", isEqualTo: "accepted")
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
@@ -97,9 +99,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
     final ap = Provider.of<AuthProvider>(context, listen: false);
     return StreamBuilder(
-      stream: firestore.collection("users").doc(ap.uid).snapshots(),
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+      stream: firestore
+          .collection("requests")
+          .where("donor", isEqualTo: ap.uid)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasError) {
           return const Center(
             child: Text("Something went wrong"),
@@ -114,46 +118,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
           );
         }
 
-        // fetch the accepted requests id
-        List<dynamic> acceptedRequests = snapshot.data!['accepted_requests'];
+        if (snapshot.data!.docs.length == 0) {
+          return Center(
+              child: Text(
+            "No donated history found!",
+            style: MyWidget.textXl.copyWith(fontWeight: FontWeight.w500),
+          ));
+        }
 
-        // for each id, fetch the request details
-        // from requests collection
         return ListView.builder(
-          itemCount: acceptedRequests.length,
+          itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
-            return StreamBuilder(
-              stream: firestore
-                  .collection("requests")
-                  .doc(acceptedRequests[index])
-                  .snapshots(),
-              builder:
-                  (BuildContext context, AsyncSnapshot<DocumentSnapshot> s) {
-                if (s.hasError) {
-                  return const Center(
-                    child: Text("Something went wrong"),
-                  );
-                }
-
-                if (s.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.redAccent,
-                    ),
-                  );
-                }
-                // get the request details
-                Map<String, dynamic> request =
-                    s.data!.data() as Map<String, dynamic>;
-                return getDonateItem(context, request);
-              },
-            );
+            // get the request details
+            Map<String, dynamic> request =
+                snapshot.data!.docs[index].data() as Map<String, dynamic>;
+            return getDonateItem(context, request);
           },
         );
       },
     );
-
-    // return a center widget stating no donated history
   }
 
   Widget _buildButton(String text, String tabName) {
@@ -232,7 +215,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                'Receiver ID ${request['donor'].substring(0, 4)}',
+                'Receiver ID ${request['requested_by'].substring(0, 4)}',
                 style: const TextStyle(
                   color: CustomColors.blackColor,
                   fontSize: 20,
