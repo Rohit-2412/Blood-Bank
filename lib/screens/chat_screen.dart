@@ -102,12 +102,12 @@ class _ChatScreenState extends State<ChatScreen> {
     var isMe = data['senderId'] == userId;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Column(
           crossAxisAlignment:
               isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            chatBubble(data['content'], isMe),
+            chatBubble(data['content'], isMe, data['senderId']),
             Text(
               // convert time stamp to hh:mm am/pm format
               HelperFunctions.formatTime(data['createdAt']),
@@ -117,7 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget chatBubble(message, isMe) {
+  Widget chatBubble(message, isMe, String id) {
     return Row(
       mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [

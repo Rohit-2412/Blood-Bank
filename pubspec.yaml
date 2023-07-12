@@ -44,6 +44,7 @@ dependencies:
     pinput: ^2.2.31
     liquid_swipe: ^3.1.0
     smooth_page_indicator: ^1.1.0
+    dice_bear: ^0.1.5
 
 dev_dependencies:
     flutter_test:

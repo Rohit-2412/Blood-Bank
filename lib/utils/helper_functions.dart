@@ -39,4 +39,16 @@ class HelperFunctions {
     }
     return randomString;
   }
+
+  // separate the phone number in parts
+  static String beautifyPhoneNumber(String phoneNumber) {
+    String formattedPhoneNumber = "";
+    for (int i = 0; i < phoneNumber.length; i++) {
+      formattedPhoneNumber += phoneNumber[i];
+      if (i == 2 || i == 5 || i == 8) {
+        formattedPhoneNumber += " ";
+      }
+    }
+    return formattedPhoneNumber;
+  }
 }

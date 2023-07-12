@@ -306,4 +306,10 @@ class AuthProvider extends ChangeNotifier {
         await _firestore.collection("users").doc(id).get();
     return snapshot.get("name");
   }
+
+  // return a stream of snapshots where chat_room ids contains the id of current user
+  // Stream<QuerySnapshot> getChatRooms() async {
+  //   // for each chat room check if the participants array contains the uid of current user
+  //   ret
+  // }
 }

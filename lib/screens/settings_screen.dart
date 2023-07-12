@@ -1,4 +1,6 @@
 import 'package:blood_bank/provider/auth_provider.dart';
+import 'package:blood_bank/utils/helper_functions.dart';
+import 'package:dice_bear/dice_bear.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +15,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final ap = Provider.of<AuthProvider>(context, listen: false);
+
+    // user avatar
+    final avatar = DiceBearBuilder(
+      seed: ap.userModel.name,
+      sprite: DiceBearSprite.adventurer,
+      radius: 50,
+    ).build();
+
+    Widget image = avatar.toImage();
 
     return Scaffold(
       appBar: AppBar(
@@ -30,18 +41,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             children: [
               Container(
+                padding: const EdgeInsets.all(6),
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                    color: Colors.red[400],
-                    borderRadius: BorderRadius.circular(50)),
-                child: const Icon(
-                  Icons.person,
-                  size: 80,
-                  color: Colors.white,
+                  border: Border.all(width: 1, color: Colors.black26),
+                  borderRadius: BorderRadius.circular(50),
                 ),
+                child: image,
               ),
               const SizedBox(height: 40),
+
+              // uid
+              _buildRow("User ID", "${ap.userModel.uid.substring(0, 10)}..."),
+              const SizedBox(height: 20),
 
               // name
               _buildRow("Name", ap.userModel.name),
@@ -57,6 +70,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // blood group
               _buildRow("Blood Group", ap.userModel.bloodGroup),
+              const SizedBox(height: 20),
+
+              _buildRow(
+                  "Phone Number",
+                  HelperFunctions.beautifyPhoneNumber(
+                      ap.userModel.phoneNumber)),
             ],
           ),
         ),
@@ -71,10 +90,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w400),
         ),
         Text(value,
-            style: const TextStyle(fontSize: 20, color: Colors.black87)),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 18, color: Colors.black87)),
       ],
     );
   }
