@@ -2,7 +2,6 @@ import 'package:blood_bank/firebase_options.dart';
 import 'package:blood_bank/provider/auth_provider.dart';
 import 'package:blood_bank/screens/auth/phone_number_input.dart';
 import 'package:blood_bank/screens/auth/sign_up_form.dart';
-import 'package:blood_bank/screens/chat_screen.dart';
 import 'package:blood_bank/screens/history_screen.dart';
 import 'package:blood_bank/screens/home_screen.dart';
 import 'package:blood_bank/screens/welcome_screen.dart';
@@ -47,7 +46,6 @@ class MyApp extends StatelessWidget {
             '/requests': (context) => const RequestsScreen(),
             '/history': (context) => const HistoryScreen(),
             '/messages': (context) => const MessagesScreen(),
-            '/chat': (context) => const ChatScreen(),
             '/settings': (context) => const SettingsScreen(),
           },
         ));

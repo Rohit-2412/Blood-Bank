@@ -1,9 +1,14 @@
+import 'package:blood_bank/provider/auth_provider.dart';
+import 'package:blood_bank/utils/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/custom_colors.dart';
+import '../utils/helper_functions.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String receiverId;
+  const ChatScreen({super.key, required this.receiverId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -12,26 +17,18 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
 
-  List<Map<String, String>> chats = [
-    {"sender": "u1", "message": "Hello"},
-    {"sender": "u2", "message": "Hi"},
-    {"sender": "u1", "message": "How are you?"},
-    {"sender": "u2", "message": "I am fine, what about you?"},
-    {"sender": "u1", "message": "I am also fine"},
-    {"sender": "u2", "message": "Ok, bye"},
-    {"sender": "u1", "message": "Bye"},
-  ];
-
-  void sendMessage() {
+  // send message to database
+  void sendMessage() async {
     var message = _messageController.text;
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+
     // trim the message to remove any extra spaces
     message = message.trim();
+
     if (message.isNotEmpty) {
-      setState(() {
-        chats.add({"sender": "u1", "message": message});
-        _messageController.clear();
-      });
+      ap.sendMessage(widget.receiverId, message);
     }
+    _messageController.clear();
   }
 
   @override
@@ -40,9 +37,9 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: CustomColors.firstGradientColor,
         foregroundColor: Colors.white,
-        title: const Text(
-          "Donor #1",
-          style: TextStyle(
+        title: Text(
+          "Donor ${widget.receiverId.substring(0, 6)}",
+          style: const TextStyle(
               color: Colors.white, fontSize: 24, fontWeight: FontWeight.w500),
         ),
         actions: [
@@ -69,21 +66,40 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget getMessages() {
     // using stream builder to listen to changes in the chats list
+    final ap = Provider.of<AuthProvider>(context, listen: false);
+
     return StreamBuilder(
-      stream: null,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return ListView.builder(
-          itemCount: chats.length,
-          itemBuilder: (BuildContext context, int index) {
-            return _messageTile(chats[index]);
-          },
-        );
-      },
-    );
+        stream: ap.getMessages(widget.receiverId),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text("Something went wrong!"));
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+                child: CircularProgressIndicator(color: Colors.redAccent));
+          }
+          if (snapshot.data!.docs.length == 0) {
+            return Center(
+                child: Text(
+              "No messages yet!",
+              style: MyWidget.textXl.copyWith(color: Colors.black),
+            ));
+          }
+
+          return ListView.builder(
+              reverse: true,
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (BuildContext context, int index) {
+                Map<String, dynamic> data = snapshot.data!.docs[index].data();
+                return _messageTile(data);
+              });
+        });
   }
 
-  Widget _messageTile(Map<String, String> data) {
-    var isMe = data['sender'] == "u1";
+  Widget _messageTile(Map<String, dynamic> data) {
+    final userId = Provider.of<AuthProvider>(context, listen: false).uid;
+    var isMe = data['senderId'] == userId;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -91,11 +107,11 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment:
               isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            chatBubble(data['message'], isMe),
-            const Text(
+            chatBubble(data['content'], isMe),
+            Text(
               // convert time stamp to hh:mm am/pm format
-              "12:00 am",
-              style: TextStyle(fontSize: 12),
+              HelperFunctions.formatTime(data['createdAt']),
+              style: const TextStyle(fontSize: 14),
             ),
           ]),
     );
@@ -123,7 +139,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     message,
                     style: TextStyle(
                         color: isMe ? Colors.white : Colors.black,
-                        fontSize: 16),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18),
                   ),
                 ),
               );
@@ -135,35 +152,39 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageInput(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-            // message input with rounded border
-            child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: TextField(
-              onSubmitted: (value) => (),
-              controller: _messageController,
-              decoration: const InputDecoration(
-                hintText: "Type a message",
-                border: InputBorder.none,
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Expanded(
+              // message input with rounded border
+              child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: TextField(
+                onSubmitted: (value) => (),
+                controller: _messageController,
+                decoration: const InputDecoration(
+                  hintText: "Type a message",
+                  border: InputBorder.none,
+                ),
               ),
             ),
+          )),
+          // send button
+          IconButton(
+            onPressed: sendMessage,
+            icon: const Icon(
+              Icons.send,
+              color: Colors.redAccent,
+            ),
           ),
-        )),
-        IconButton(
-          onPressed: sendMessage,
-          icon: const Icon(
-            Icons.send,
-            color: Colors.redAccent,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

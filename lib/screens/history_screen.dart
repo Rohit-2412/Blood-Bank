@@ -1,3 +1,4 @@
+import 'package:blood_bank/screens/chat_screen.dart';
 import 'package:blood_bank/utils/helper_functions.dart';
 import 'package:blood_bank/constants/custom_colors.dart';
 import 'package:blood_bank/provider/auth_provider.dart';
@@ -174,148 +175,168 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget getDonateItem(BuildContext context, Map<String, dynamic> request) {
     // return a container having date and location at the left side of card, receiver id and qty at the right side of card
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 2,
-            offset: const Offset(0, 1),
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            receiverId: request['requested_by'],
           ),
-        ],
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Date : ${HelperFunctions.formatDate(request['createdAt'])}',
-                style: const TextStyle(
-                  color: CustomColors.blackColor,
-                  fontSize: 20,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Date : ${HelperFunctions.formatDate(request['createdAt'])}',
+                  style: const TextStyle(
+                    color: CustomColors.blackColor,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              const Text(
-                'Location : 123, XYZ Apt',
-                style: TextStyle(
-                  color: CustomColors.grayColor,
-                  fontSize: 16,
+                const Text(
+                  'Location : 123, XYZ Apt',
+                  style: TextStyle(
+                    color: CustomColors.grayColor,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'Receiver ID ${request['requested_by'].substring(0, 4)}',
-                style: const TextStyle(
-                  color: CustomColors.blackColor,
-                  fontSize: 20,
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Receiver ID ${request['requested_by'].substring(0, 4)}',
+                  style: const TextStyle(
+                    color: CustomColors.blackColor,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              Text(
-                'Qty: ${request['qty']}ml',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 16,
+                Text(
+                  'Qty: ${request['qty']}ml',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget getReceiveItem(BuildContext context, Map<String, dynamic> data) {
     // return a container having date and location at the left side of card, receiver id and qty and view details at the right side of card
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 2,
-            offset: const Offset(0, 1),
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            receiverId: data['donor'],
           ),
-        ],
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Date: ${HelperFunctions.formatDate(data['createdAt'])}',
-                style: const TextStyle(
-                  color: CustomColors.blackColor,
-                  fontSize: 20,
-                ),
-              ),
-              const Text(
-                'Location : 123, XYZ Apt',
-                style: TextStyle(
-                  color: CustomColors.grayColor,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                'Donor ID ${data['donor'].substring(0, 4)}',
-                style: const TextStyle(
-                  color: CustomColors.blackColor,
-                  fontSize: 20,
-                ),
-              ),
-              Text(
-                'Qty: 0.${data['qty']}ml',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text.rich(
-                TextSpan(
-                  text: 'View Details',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Date: ${HelperFunctions.formatDate(data['createdAt'])}',
                   style: const TextStyle(
-                    color: CustomColors.firstGradientColor,
+                    color: CustomColors.blackColor,
+                    fontSize: 20,
+                  ),
+                ),
+                const Text(
+                  'Location : 123, XYZ Apt',
+                  style: TextStyle(
+                    color: CustomColors.grayColor,
                     fontSize: 16,
                   ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      // show a bottom containing donor details
-                      showModalBottomSheet(
-                        useSafeArea: true,
-                        context: context,
-                        enableDrag: true,
-                        builder: (_) => showDonorDetails(data['donor']),
-                      );
-                    },
                 ),
-              )
-            ],
-          ),
-        ],
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Donor ID ${data['donor'].substring(0, 4)}',
+                  style: const TextStyle(
+                    color: CustomColors.blackColor,
+                    fontSize: 20,
+                  ),
+                ),
+                Text(
+                  'Qty: 0.${data['qty']}ml',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text.rich(
+                  TextSpan(
+                    text: 'View Details',
+                    style: const TextStyle(
+                      color: CustomColors.firstGradientColor,
+                      fontSize: 16,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        // show a bottom containing donor details
+                        showModalBottomSheet(
+                          useSafeArea: true,
+                          context: context,
+                          enableDrag: true,
+                          builder: (_) => showDonorDetails(data['donor']),
+                        );
+                      },
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

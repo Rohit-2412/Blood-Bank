@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:blood_bank/models/message.dart';
 import 'package:blood_bank/models/patient_request.dart';
 import 'package:blood_bank/models/user.dart';
 import 'package:blood_bank/screens/auth/otp_input.dart';
@@ -248,7 +249,61 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // chat services
-  Future createChatRoom(String otherUserId) async {
-    //
+  Future sendMessage(String receiverId, String message) async {
+    // create a message object
+    MessageModel msg = MessageModel(
+      content: message,
+      createAt: DateTime.now().millisecondsSinceEpoch.toString(),
+      receiverId: receiverId,
+      senderId: uid,
+      senderName: userModel.name,
+    );
+
+    // list of ids
+    List<String> ids = [receiverId, uid];
+    ids.sort(); // sort to create only 1 chat room between 2 users
+
+    // create chat room id
+    String chatRoomId = ids.join("_");
+
+    // create a chat room and add message to it
+    _firestore
+        .collection("chat_rooms")
+        .doc(chatRoomId)
+        .collection("messages")
+        .add(msg.toMap());
+
+    // add participants to chat room
+    _firestore
+        .collection("chat_rooms")
+        .doc(chatRoomId)
+        .set({'participants': ids}, SetOptions(merge: true));
+  }
+
+  // get messages
+  Stream<QuerySnapshot> getMessages(String receiverId) {
+    // construct chatroom id
+    List<String> ids = [uid, receiverId];
+
+    // sort to ensure that the chat room id is always the same for 2 user
+    ids.sort();
+
+    // combine the ids with an underscore to create a chat room id
+    String chatRoomId = ids.join('_');
+
+    // find chatroom
+    return _firestore
+        .collection('chat_rooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  // get user's name from id
+  Future<String> getUserName(String id) async {
+    DocumentSnapshot snapshot =
+        await _firestore.collection("users").doc(id).get();
+    return snapshot.get("name");
   }
 }
