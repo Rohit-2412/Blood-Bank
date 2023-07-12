@@ -93,15 +93,23 @@ class AuthProvider extends ChangeNotifier {
           verificationCompleted: (phoneAuthCredential) async {
             await _auth.signInWithCredential(phoneAuthCredential);
           },
-          verificationFailed: (error) {
+          verificationFailed: (FirebaseAuthException error) {
             throw Exception(error.message);
           },
           codeSent: (verificationId, forceResendingToken) {
-            Navigator.push(
+            try {
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        OtpInput(verificationId: verificationId)));
+                  builder: (context) => OtpInput(
+                    verificationId: verificationId,
+                    phoneNumber: phoneNumber,
+                  ),
+                ),
+              );
+            } catch (e) {
+              print("error ");
+            }
           },
           codeAutoRetrievalTimeout: (verificationId) {});
     } on FirebaseAuthException catch (e) {
@@ -114,13 +122,7 @@ class AuthProvider extends ChangeNotifier {
     DocumentSnapshot snapshot =
         await _firestore.collection("users").doc(_uid).get();
 
-    if (snapshot.exists) {
-      print("user exists");
-      return true;
-    } else {
-      print("user does not exists");
-      return false;
-    }
+    return snapshot.exists ? true : false;
   }
 
   void storeUserData({
@@ -299,17 +301,4 @@ class AuthProvider extends ChangeNotifier {
         .orderBy('createdAt', descending: true)
         .snapshots();
   }
-
-  // get user's name from id
-  Future<String> getUserName(String id) async {
-    DocumentSnapshot snapshot =
-        await _firestore.collection("users").doc(id).get();
-    return snapshot.get("name");
-  }
-
-  // return a stream of snapshots where chat_room ids contains the id of current user
-  // Stream<QuerySnapshot> getChatRooms() async {
-  //   // for each chat room check if the participants array contains the uid of current user
-  //   ret
-  // }
 }

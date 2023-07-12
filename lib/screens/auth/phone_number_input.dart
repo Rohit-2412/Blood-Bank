@@ -1,5 +1,6 @@
 import 'package:blood_bank/constants/custom_colors.dart';
 import 'package:blood_bank/provider/auth_provider.dart';
+import 'package:blood_bank/utils/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,79 +15,98 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
   // controller for text field
   final TextEditingController _controller = TextEditingController();
 
-  // set initial text as +91
-  _PhoneNumberInputState() {
-    _controller.text = "+91";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 100),
-            // heading
-            const Text(
-              "Enter your mobile number",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  color: CustomColors.blackColor),
-            ),
+      backgroundColor: CustomColors.whiteColor,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 250,
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage("assets/login.jpeg"),
+            )),
+          ),
+          // heading
+          const SizedBox(height: 20),
 
-            // input box for number
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-              child: TextField(
-                autofocus: true,
-                autocorrect: false,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: CustomColors.blackColor,
-                    fontSize: 24,
-                    letterSpacing: 2),
-                controller: _controller,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintStyle: TextStyle(
+          const Text(
+            "Enter your mobile number",
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: CustomColors.blackColor),
+          ),
+
+          const SizedBox(height: 10),
+
+          // input box for number
+          Container(
+            width: MediaQuery.of(context).size.width * 0.75,
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color: CustomColors.firstGradientColor, width: 1.5),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "+91 ",
+                  style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w400,
-                      color: CustomColors.primaryColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    borderSide: BorderSide(color: CustomColors.blackColor),
+                      color: CustomColors.blackColor),
+                ),
+                // input field
+                Expanded(
+                  child: TextFormField(
+                    autofocus: true,
+                    controller: _controller,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                    ),
+                    style: const TextStyle(
+                        letterSpacing: 1,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w400,
+                        color: CustomColors.blackColor),
                   ),
                 ),
-              ),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            // button to get otp having full screen width
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: ElevatedButton(
-                onPressed: () {
-                  handleClick(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.buttonBackground,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
+          // button to get otp having full screen width
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.75,
+            child: ElevatedButton(
+              onPressed: () {
+                handleClick(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CustomColors.buttonBackground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text("Get OTP",
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: CustomColors.whiteColor)),
               ),
-            )
-          ],
-        ),
+              child: const Text("Get OTP",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: CustomColors.whiteColor)),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -101,50 +121,13 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
   // function to get number from text field and validate it
   void handleClick(context) async {
     String phoneNumber = _controller.text;
-    if (phoneNumber.length != 13) {
-      // show alert dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return _showAlertDialog();
-        },
-      );
+    if (phoneNumber.length != 10) {
+      // show snack bar
+      MyWidget.showSnackBar(
+          context, "Please enter a valid 10-digit mobile number!");
     } else {
       final ap = Provider.of<AuthProvider>(context, listen: false);
-      ap.signInWithPhone(context, phoneNumber);
+      ap.signInWithPhone(context, "+91$phoneNumber");
     }
-  }
-
-  Widget _showAlertDialog() {
-    return AlertDialog(
-      title: const Text(
-        'Warning!',
-        style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-            color: CustomColors.blackColor),
-      ),
-      content: const Text(
-        'Please enter a valid mobile number!',
-        style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: CustomColors.primaryColorDark),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text(
-            'OK',
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: CustomColors.primaryColorDark),
-          ),
-        ),
-      ],
-    );
   }
 }

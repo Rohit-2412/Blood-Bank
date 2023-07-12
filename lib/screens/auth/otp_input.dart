@@ -7,10 +7,13 @@ import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/auth_provider.dart';
+import '../../utils/helper_functions.dart';
 
 class OtpInput extends StatefulWidget {
   final String verificationId;
-  const OtpInput({super.key, required this.verificationId});
+  final String phoneNumber;
+  const OtpInput(
+      {super.key, required this.verificationId, required this.phoneNumber});
 
   @override
   State<OtpInput> createState() => _OtpInputState();
@@ -21,12 +24,11 @@ class _OtpInputState extends State<OtpInput> {
 
   @override
   Widget build(BuildContext context) {
-    String? number = ModalRoute.of(context)!.settings.arguments as String?;
-
     final isLoading =
         Provider.of<AuthProvider>(context, listen: true).isLoading;
 
     return Scaffold(
+        backgroundColor: CustomColors.whiteColor,
         body: isLoading
             ? const Center(
                 child: CircularProgressIndicator(
@@ -37,12 +39,20 @@ class _OtpInputState extends State<OtpInput> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 50),
+                      Container(
+                        height: 200,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/otp.jpg"),
+                          ),
+                        ),
+                      ),
+
                       // heading
                       const Text(
                         "OTP Verification",
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 24,
                             fontWeight: FontWeight.w500,
                             color: Colors.black),
                       ),
@@ -50,7 +60,7 @@ class _OtpInputState extends State<OtpInput> {
                       // enter the otp sent to your number
                       const SizedBox(height: 20),
                       Text(
-                        "Enter the OTP sent to $number",
+                        "Enter the OTP sent to ${HelperFunctions.beautifyPhoneNumber(widget.phoneNumber)}",
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w400,
@@ -59,7 +69,7 @@ class _OtpInputState extends State<OtpInput> {
                       const SizedBox(height: 20),
                       // Row having 4 boxes for otp using list view
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Pinput(
                           length: 6,
                           showCursor: true,
@@ -68,7 +78,8 @@ class _OtpInputState extends State<OtpInput> {
                             width: 60,
                             decoration: BoxDecoration(
                               border: Border.all(
-                                  color: CustomColors.firstGradientColor),
+                                  color: CustomColors.firstGradientColor,
+                                  width: 2),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             textStyle: const TextStyle(
@@ -91,11 +102,10 @@ class _OtpInputState extends State<OtpInput> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text(
-                            "Didn't receive OTP?",
+                            "Didn't receive an OTP?",
                             style: TextStyle(
-                                fontSize: 20, color: CustomColors.grayColor),
+                                fontSize: 20, color: CustomColors.blackColor),
                           ),
-                          const SizedBox(width: 5),
                           TextButton(
                             onPressed: () {},
                             child: const Text(

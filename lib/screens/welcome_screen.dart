@@ -26,8 +26,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final controller = PageController();
 
     List<Widget> pages = [
-      // page1(),
-      // page2(),
+      page1(),
+      page2(),
       page3(ap),
     ];
 

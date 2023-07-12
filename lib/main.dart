@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             useMaterial3: true,
           ),
-          initialRoute: '/welcome',
+          initialRoute: '/splash',
           routes: {
             '/splash': (context) => const SplashScreen(),
             '/welcome': (context) => const WelcomeScreen(),

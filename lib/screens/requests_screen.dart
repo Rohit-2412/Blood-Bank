@@ -40,6 +40,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
         stream: FirebaseFirestore.instance
             .collection("requests")
             .where("status", isEqualTo: "pending")
+            .where("requested_by", isNotEqualTo: ap.uid)
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
@@ -71,9 +72,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
             final declinedBy = doc["declined_by"] as List<dynamic>;
             return !declinedBy.contains(ap.uid);
           }).toList();
-
-          // remove requests requested by me
-          // TODO
 
           if (filteredDocs.isEmpty) {
             return Center(

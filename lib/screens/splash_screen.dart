@@ -1,3 +1,4 @@
+import 'package:blood_bank/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -15,21 +16,34 @@ class _SplashScreenState extends State<SplashScreen> {
     // call function after 3 second
     Future.delayed(const Duration(seconds: 3), () {
       // navigate to onboarding screen
-      Navigator.pushReplacementNamed(context, '/onboarding1');
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) {
+        return const WelcomeScreen();
+      }));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // show image in center
       body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         height: double.maxFinite,
         width: double.maxFinite,
-        margin: const EdgeInsets.all(120),
-        child: Image.asset(
-          'assets/splashScreen/img.png',
-          fit: BoxFit.contain,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/splash_screen.png',
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Uniting Donors and Recipients\nBlood Bank App for All',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 24, fontWeight: FontWeight.w500, color: Colors.red),
+            ),
+          ],
         ),
       ),
     );

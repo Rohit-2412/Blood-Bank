@@ -94,7 +94,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Donor #${otherUserId.substring(0, 5)}",
+                Text("User #${otherUserId.substring(0, 10)}",
                     style: const TextStyle(
                         fontSize: 24,
                         color: Colors.black,
